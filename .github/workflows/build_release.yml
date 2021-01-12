@@ -4,7 +4,7 @@ on:
   push:
     branches: 
       - main
-    tags: 
+    tags:
       - '*'
   pull_request:
     branches: 
@@ -50,10 +50,9 @@ jobs:
         uses: olegtarasov/get-tag@v2.1
       - name: Update version
         run: |
-          sed -i 's/REPLACE_ME_FROM_TAG/${{ steps.tag.outputs.tag }}/' src/version.py
+          sed -i 's/REPLACE_ME_FROM_TAG/$GIT_TAG_NAME/' src/version.py
       - name: Build package
         run: |
-          python --version
           python -m build --sdist --wheel --outdir dist/
       - name: GitHub Releases
         uses: fnkr/github-action-ghr@v1.3
