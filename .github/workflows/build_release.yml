@@ -46,13 +46,31 @@ jobs:
         run: |
           pytest --cov-report=xml --cov=src tests/
       - name: Extract tag version
-        id: tag
+        id: tagName
         uses: olegtarasov/get-tag@v2.1
       - name: Update version
         run: |
-          sed -i 's/REPLACE_ME_FROM_TAG/$GIT_TAG_NAME/' src/version.py
+          sed -i 's/REPLACE_ME_FROM_TAG/${{ steps.tagName.outputs.tag }}/' src/version.py
       - name: Build package
         run: |
           python -m build --sdist --wheel --outdir dist/
-      - name: GitHub Releases
-        uses: fnkr/github-action-ghr@v1.3
+      - name: GitHub Release Create
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tagName.outputs.tag }}
+          release_name: Release v${{ steps.tagName.outputs.tag }}
+          draft: false
+          prerelease: false
+      - name: GitHub Release Upload
+        id: upload_release_github
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/python-http-api-${{ steps.tagName.outputs.tag }}.tar.gz
+          asset_name: python-http-api-${{ steps.tagName.outputs.tag }}.tar.gz
+          asset_content_type: application/gzip
