@@ -1,0 +1,7 @@
+.pytest_cache
+.idea
+.vscode
+report*
+__pycache__
+store
+venv
