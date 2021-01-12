@@ -318,7 +318,7 @@ class HTTPApi:
         :return: Symbol
         """
         if version not in ("1.0", "2.0"):
-            raise NotImplemented(f"API not available in {version}")
+            raise NotImplementedError(f"API not available in {version}")
         model = resolve_model(version or self.version, SymbolType)
         return model.from_json(
             self._get(self.api_md, "/groups/{}/nearest".format(group.group if isinstance(group, Group) else group),
@@ -404,7 +404,7 @@ class HTTPApi:
         :return: HTTPApiStreaming instance thread
         """
         if version != "3.0":
-            raise NotImplemented(f"API not available in {version}")
+            raise NotImplementedError(f"API not available in {version}")
         return HTTPApiStreaming(
             self.auth, self.api_md.format(version or self.version), f"/feed/trades/{resolve_symbol(symbols)}",
             resolve_model(version or self.version, TradeType), logger=self.logger)
@@ -676,7 +676,7 @@ class HTTPApi:
         :return: HTTPApiStreaming instance thread
         """
         return HTTPApiStreaming(
-            self.auth, self.api_trade.format(version or self.version), f"/stream/orders",
+            self.auth, self.api_trade.format(version or self.version), "/stream/orders",
             resolve_model(version or self.version, OrderType), event_filter="order", logger=self.logger)
 
     def get_exec_orders_stream(self, version: str = None) -> HTTPApiStreaming:
@@ -686,6 +686,6 @@ class HTTPApi:
         :return: HTTPApiStreaming instance thread
         """
         return HTTPApiStreaming(
-            self.auth, self.api_trade.format(version or self.version), f"/stream/trades",
+            self.auth, self.api_trade.format(version or self.version), "/stream/trades",
             resolve_model(version or self.version, ExOrderType),
             event_filter="trade" if (version == "3.0") or (self.version == "3.0") else None, logger=self.logger)
