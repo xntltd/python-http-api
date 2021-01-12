@@ -4,9 +4,13 @@ on:
   push:
     branches: 
       - main
+    tags: 
+      - '*'
   pull_request:
     branches: 
       - main
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -41,5 +45,19 @@ jobs:
       - name: Test with pytest
         run: |
           pytest --cov-report=xml --cov=src tests/
+      - name: Extract tag version
+        id: tag
+        uses: actions/github-script@0.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            return context.payload.ref.replace(/\/refs\/tags\//, '');
+      - name: Update version
+        run: |
+          - sed -i "s/REPLACE_ME_FROM_TAG/${{ steps.tag.outputs.result }}/" src/version.py
+      - name: Build package
+        run: |
+          python --version
+          python -m build --sdist --wheel --outdir dist/
       - name: GitHub Releases
         uses: fnkr/github-action-ghr@v1.3
