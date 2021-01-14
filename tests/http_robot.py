@@ -9,9 +9,10 @@ from queue import Empty
 from threading import Thread
 from typing import Dict, Optional, Union
 
-from src.http_api import HTTPApi, HTTPApiStreaming, AuthMethods
-from src.models.http_api_models import QuoteType, OrderLimitType, Scopes, SummaryType, FeedLevel, Side, Durations, OrderStatuses
-from src.models.http_api_models import resolve_model
+from xnt.http_api import HTTPApi, HTTPApiStreaming, AuthMethods
+from xnt.models.http_api_models import QuoteType, OrderLimitType, Scopes, SummaryType, FeedLevel, Side, Durations, \
+    OrderStatuses
+from xnt.models.http_api_models import resolve_model
 
 
 def mk_logger(dir_path: str, level: str) -> logging.Logger:

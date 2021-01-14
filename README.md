@@ -7,9 +7,11 @@ All methods are strictly typed, python3.7+.
 
 Package available from github assets and pypi repository
 
+~~python3 -m pip install python-http-api~~
+
 # Basic usage
 
-Main class [HTTPApi](src/http_api.py#L132) provides all neccessary methods to access API, each method has docstring with basic explanation of its usage.
+Main class [HTTPApi](src/xnt/http_api.py#L132) provides all neccessary methods to access API, each method has docstring with basic explanation of its usage.
 Class initialization requires specification one of authentification methods: either basic auth or building JWT token.
 
     HTTPApi(auth=AuthMethods.JWT,

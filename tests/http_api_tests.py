@@ -6,14 +6,14 @@ import responses
 
 from deepdiff import DeepDiff
 
-from src.http_api import HTTPApi, current_api
-from src.models.http_api_models import AuthMethods, CandleDurations, ChangeType, Crossrate, DataType, Durations
-from src.models.http_api_models import Exchange, ExOrderType, FeedLevel, Group, InstrumentType, OHLCQuotes
-from src.models.http_api_models import OHLCTrades, Ordering, OrderType, OrderLimitType, QuoteType, Reject
-from src.models.http_api_models import Schedule, Side, SummaryType, SymbolType, SymbolSpecification, SymbolV1
-from src.models.http_api_models import SymbolV2, SymbolV3, TradeType, TradeV2, TransactionType, UserAccount
-from src.models.http_api_models import resolve_model, resolve_symbol
-from src.models.json_to_obj import extract_to_model
+from xnt.http_api import HTTPApi, current_api
+from xnt.models.http_api_models import AuthMethods, CandleDurations, ChangeType, Crossrate, DataType, Durations
+from xnt.models.http_api_models import Exchange, ExOrderType, FeedLevel, Group, InstrumentType, OHLCQuotes
+from xnt.models.http_api_models import OHLCTrades, Ordering, OrderType, OrderLimitType, QuoteType, Reject
+from xnt.models.http_api_models import Schedule, Side, SummaryType, SymbolType, SymbolSpecification, SymbolV1
+from xnt.models.http_api_models import SymbolV2, SymbolV3, TradeType, TradeV2, TransactionType, UserAccount
+from xnt.models.http_api_models import resolve_model, resolve_symbol
+from xnt.models.http_jto import extract_to_model
 
 try:
     import ujson as json

@@ -16,14 +16,14 @@ import requests
 from requests import exceptions, adapters
 from requests.auth import AuthBase, HTTPBasicAuth
 
-from src.models.http_api_models import AuthMethods, CandleDurations, ChangeType, Crossrate, DataType, Exchange
-from src.models.http_api_models import ExOrderType, FeedLevel, Group, InstrumentType, ModifyAction, OHLCQuotes
-from src.models.http_api_models import OHLCTrades, Ordering, OrderType, OrderV1, OrderV2, OrderV3, OrderSentType
-from src.models.http_api_models import QuoteType, Reject, Schedule, Scopes, SummaryType, SymbolType
-from src.models.http_api_models import SymbolSpecification, TradeType, TransactionType, UserAccount
-from src.models.http_api_models import resolve_model, resolve_symbol
-from src.models.json_to_obj import Numeric, SerializableType
-from src.models.json_to_obj import dt_to_str, dt_to_timestamp, extract_to_model, opt_int, timestamp_to_dt
+from xnt.models.http_api_models import AuthMethods, CandleDurations, ChangeType, Crossrate, DataType, Exchange
+from xnt.models.http_api_models import ExOrderType, FeedLevel, Group, InstrumentType, ModifyAction, OHLCQuotes
+from xnt.models.http_api_models import OHLCTrades, Ordering, OrderType, OrderV1, OrderV2, OrderV3, OrderSentType
+from xnt.models.http_api_models import QuoteType, Reject, Schedule, Scopes, SummaryType, SymbolType
+from xnt.models.http_api_models import SymbolSpecification, TradeType, TransactionType, UserAccount
+from xnt.models.http_api_models import resolve_model, resolve_symbol
+from xnt.models.http_jto import Numeric, SerializableType
+from xnt.models.http_jto import dt_to_str, dt_to_timestamp, extract_to_model, opt_int, timestamp_to_dt
 
 try:
     import ujson as json
