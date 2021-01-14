@@ -44,6 +44,7 @@ jobs:
           flake8 src --count --exit-zero --max-complexity=26 --max-line-lengt=250 --statistics
       - name: Test with pytest
         run: |
+          touch src/conftest.py
           pytest --cov-report=xml --cov=src tests/
       - name: Extract tag version
         id: tagName
