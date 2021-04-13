@@ -14,7 +14,7 @@ try:
 except ImportError:
     import json
 
-reserved = ('type', 'id', 'list', 'except', 'from', 'to', 'open', 'sum')
+reserved = ('type', 'id', 'list', 'except', 'from', 'to', 'open', 'sum', 'uuid')
 SerializableType = TypeVar('SerializableType', bound='Serializable')
 FIXMessageType = TypeVar('FIXMessageType', bound='FIXMessage')
 

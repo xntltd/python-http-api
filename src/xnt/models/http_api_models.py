@@ -65,6 +65,7 @@ class OptionRight(Enum):
 class CandleDurations(Enum):
     DAY1 = 86400
     HOUR1 = 3600
+    MIN30 = 1800
     MIN5 = 300
     MIN1 = 60
 
@@ -373,7 +374,9 @@ SummaryType = TypeVar('SummaryType', SummaryV1, SummaryV2, SummaryV3, covariant=
 
 class TransactionV1(Serializable):
     def __init__(self, operation_type: str, id_: str, asset: Optional[str], when: int, sum_: float,
-                 symbol_id: Optional[str] = None, account_id: Optional[str] = None) -> None:
+                 symbol_id: Optional[str] = None, account_id: Optional[str] = None,
+                 order_id: Optional[str] = None, order_pos: Optional[int] = None,
+                 uuid_: Optional[str] = None) -> None:
         self.operation_type = operation_type
         self.id_ = id_
         self.asset = asset
@@ -381,6 +384,9 @@ class TransactionV1(Serializable):
         self.sum_ = sum_
         self.symbol_id = symbol_id
         self.account_id = account_id
+        self.order_id = order_id
+        self.order_pos = dc(order_pos)
+        self.uuid = uuid_
 
 
 class TransactionV2(TransactionV1):
@@ -389,7 +395,9 @@ class TransactionV2(TransactionV1):
 
 class TransactionV3(Serializable):
     def __init__(self, operation_type: str, id_: str, asset: Optional[str], timestamp: int, sum_: float,
-                 symbol_id: Optional[str] = None, account_id: Optional[str] = None) -> None:
+                 symbol_id: Optional[str] = None, account_id: Optional[str] = None,
+                 order_id: Optional[str] = None, order_pos: Optional[int] = None,
+                 uuid_: Optional[str] = None) -> None:
         self.operation_type = operation_type
         self.id_ = id_
         self.asset = asset
@@ -397,6 +405,9 @@ class TransactionV3(Serializable):
         self.sum_ = sum_
         self.symbol_id = symbol_id
         self.account_id = account_id
+        self.order_id = order_id
+        self.order_pos = dc(order_pos)
+        self.uuid = uuid_
 
 
 TransactionType = TypeVar('TransactionType', TransactionV1, TransactionV2, TransactionV3, covariant=True)
@@ -415,11 +426,11 @@ class SymbolV1(Serializable):
             self.right = Serializable.to_enum(right, OptionRight)
             self.strike_price = dc(strike_price)
 
-    def __init__(self, i18n: Dict[str, str], name: str, description: str, country: str, exchange: str, id_: str,
+    def __init__(self, name: str, description: str, country: str, exchange: str, id_: str,
                  currency: str, mpi: float, type_: str, ticker: str, group: Optional[str] = None,
                  option_data: Optional[Dict[str, str]] = None, expiration: Optional[int] = None) -> None:
         self.option_data = extract_to_model(option_data, self.OptionData)
-        self.i18n = i18n
+        self.i18n = {}
         self.name = name
         self.description = description
         self.country = country
@@ -440,11 +451,11 @@ class SymbolV2(Serializable):
             self.right = Serializable.to_enum(right, OptionRight)
             self.strike_price = dc(strike_price)
 
-    def __init__(self, i18n: Dict[str, str], name: str, description: str, country: str, exchange: str, id_: str,
+    def __init__(self, name: str, description: str, country: str, exchange: str, id_: str,
                  currency: str, mpi: str, type_: str, ticker: str, group: Optional[str] = None,
                  option_data: Optional[Dict[str, str]] = None, expiration: Optional[int] = None) -> None:
         self.option_data = extract_to_model(option_data, self.OptionData)
-        self.i18n = i18n
+        self.i18n = {}
         self.name = name
         self.description = description
         self.country = country
@@ -467,7 +478,7 @@ class SymbolV3(Serializable):
 
     def __init__(self, name: str, description: str, country: str, exchange: str, symbol_id: str, currency: str,
                  min_price_increment: str, symbol_type: str, ticker: str, group: str, expiration: Optional[int] = None,
-                 option_data: Optional[Dict[str, str]] = None) -> None:
+                 option_data: Optional[Dict[str, str]] = None, underlying_symbol_id: Optional[str] = None) -> None:
         self.option_data = extract_to_model(option_data, self.OptionData)
         self.name = name
         self.description = description
@@ -480,6 +491,7 @@ class SymbolV3(Serializable):
         self.ticker = ticker
         self.expiration = timestamp_to_dt(expiration)
         self.group = group
+        self.underlying_symbol_id = underlying_symbol_id
 
 
 SymbolType = TypeVar('SymbolType', SymbolV1, SymbolV2, SymbolV3, covariant=True)

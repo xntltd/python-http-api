@@ -3,7 +3,7 @@
 
 import logging
 from datetime import datetime, timezone
-from json import JSONDecodeError
+from json.decoder import JSONDecodeError
 from queue import Queue, Empty
 from threading import Thread, Event
 from time import sleep
@@ -168,7 +168,8 @@ class HTTPApi:
         self.api_trade = "%s/trade/{}" % self.url
         self.session = requests.Session()
         self.session.mount(self.url, adapters.HTTPAdapter())
-        self.logger = logger or logging.Logger(name="HTTPApi", level=logging.ERROR)
+        self.logger = logger or logging.getLogger("HTTPApi")
+        self.logger.setLevel(logging.ERROR)
 
     @backoff.on_exception(backoff.constant, (exceptions.ConnectionError, exceptions.Timeout,
                                              exceptions.ConnectTimeout, exceptions.ReadTimeout),
@@ -211,6 +212,7 @@ class HTTPApi:
              params: Optional[Dict[str, Any]] = None) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         r = self.__request(method=self.session.get, api=api, handler=handler, version=version or self.version,
                            params=params)
+        self.logger.debug(r.text)
         try:
             return r.json()
         except JSONDecodeError:
@@ -221,6 +223,7 @@ class HTTPApi:
               jdata: Optional[Dict[str, Any]] = None) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         r = self.__request(method=self.session.post, api=api, handler=handler, version=version or self.version,
                            params=params, jdata=jdata)
+        self.logger.debug(r.text)
         try:
             return r.json()
         except JSONDecodeError:
