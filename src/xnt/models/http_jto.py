@@ -16,7 +16,6 @@ except ImportError:
 
 reserved = ('type', 'id', 'list', 'except', 'from', 'to', 'open', 'sum', 'uuid')
 SerializableType = TypeVar('SerializableType', bound='Serializable')
-FIXMessageType = TypeVar('FIXMessageType', bound='FIXMessage')
 
 Numeric = Union[int, float, str, Decimal]
 
