@@ -32,11 +32,11 @@ size = 4
         symbol,
         (symbol, symbol),
         SymbolV3("", "", "", "", symbol, "", "0.01", "STOCK", "", ""),
-        SymbolV2({}, "", "", "", "", symbol, "", "0.01", "STOCK", "", ""),
-        SymbolV1({}, "", "", "", "", symbol, "", 0.01, "STOCK", "", ""),
+        SymbolV2("", "", "", "", symbol, "", "0.01", "STOCK", "", ""),
+        SymbolV1("", "", "", "", symbol, "", 0.01, "STOCK", "", ""),
         (SymbolV3("", "", "", "", symbol, "", "0.01", "STOCK", "", ""),
-         SymbolV2({}, "", "", "", "", symbol, "", "0.01", "STOCK", "", ""))
-                                 ))
+         SymbolV2("", "", "", "", symbol, "", "0.01", "STOCK", "", ""))
+))
 def test_resolve_symbol_func(sym):
     resolve = resolve_symbol(sym)
     if "," in resolve:
@@ -116,14 +116,14 @@ class TestHTTPApi:
     def test_symbols_by_exch(self, exch):
         data = [
             {
-                "optionData": {"optionGroupId": "ED.FORTS.Z2020.C*", "strikePrice": "1.1", "right": "CALL"}, "i18n": {},
+                "optionData": {"optionGroupId": "ED.FORTS.Z2020.C*", "strikePrice": "1.1", "right": "CALL"},
                 "name": "EUR/USD", "description": "Options On EUR/USD Futures Dec 2020 CALL 1.1", "country": "RU",
                 "exchange": "FORTS", "id": "ED.FORTS.Z2020.C1_1", "currency": "USD", "mpi": "0.0001", "type": "OPTION",
                 "ticker": "ED", "expiration": 1608202800000, "group": "ED"
             },
             {
                 "optionData": {"optionGroupId": "SBRF.FORTS.U2020.C*", "strikePrice": "1550", "right": "CALL"},
-                "i18n": {}, "name": "Sberbank", "description": "Options On Sberbank Futures Sep 2020 CALL 15500",
+                "name": "Sberbank", "description": "Options On Sberbank Futures Sep 2020 CALL 15500",
                 "country": "RU", "exchange": "FORTS", "id": "SBRF.FORTS.U2020.C15500", "currency": "RUB", "mpi": "1.0",
                 "type": "OPTION", "ticker": "SBRF", "expiration": 1600271100000, "group": "SBRF.FORTS"
             }
@@ -146,13 +146,13 @@ class TestHTTPApi:
     def test_symbols_by_gr(self, gr):
         data = [
             {
-                "optionData": None, "i18n": {}, "name": "NLMK",
+                "optionData": None, "name": "NLMK",
                 "description": "Futures on NLMK ordinary shares Jun 2021",
                 "country": "RU", "exchange": "FORTS", "id": "NLMK.FORTS.M2021", "currency": "RUB", "mpi": "1.0",
                 "type": "FUTURE", "ticker": "NLMK", "expiration": 1623944700000, "group": "NLMK.FORTS"
             },
             {
-                "optionData": None, "i18n": {}, "name": "NLMK",
+                "optionData": None, "name": "NLMK",
                 "description": "Futures on NLMK ordinary shares Mar 2021",
                 "country": "RU", "exchange": "FORTS", "id": "NLMK.FORTS.H2021", "currency": "RUB", "mpi": "1.0",
                 "type": "FUTURE", "ticker": "NLMK", "expiration": 1616082300000, "group": "NLMK.FORTS"
@@ -165,7 +165,7 @@ class TestHTTPApi:
     @pytest.mark.parametrize("gr", ("NLMK.FORTS", Group("NLMK.FORTS", "NLMK", ["FUTURE"], "FORTS")))
     def test_get_nearest(self, gr):
         data = {
-            "optionData": None, "i18n": {}, "name": "NLMK", "description": "Futures on NLMK ordinary shares Jun 2021",
+            "optionData": None, "name": "NLMK", "description": "Futures on NLMK ordinary shares Jun 2021",
             "country": "RU", "exchange": "FORTS", "id": "NLMK.FORTS.U2020", "currency": "RUB", "mpi": "1.0",
             "type": "FUTURE", "ticker": "NLMK", "expiration": 1623944700000, "group": "NLMK.FORTS"
         }
@@ -176,12 +176,12 @@ class TestHTTPApi:
     def test_get_symbols(self):
         data = [
             {
-                "optionData": None, "i18n": {}, "name": "AAON", "description": "AAON, Inc. - Common Stock",
+                "optionData": None, "name": "AAON", "description": "AAON, Inc. - Common Stock",
                 "country": "US", "exchange": "NASDAQ", "id": "AAON.NASDAQ", "currency": "USD", "mpi": "0.01",
                 "type": "STOCK", "ticker": "AAON", "expiration": None, "group": None
             },
             {
-                "optionData": {"optionGroupId": "XLU.CBOE.21F2022.C*", "strikePrice": 65, "right": "CALL"}, "i18n": {},
+                "optionData": {"optionGroupId": "XLU.CBOE.21F2022.C*", "strikePrice": 65, "right": "CALL"},
                 "name": "SPDR Select Sector Fund - Utilities",
                 "description": "Options On SPDR Select Sector Fund - Utilities 21 Jan 2022 CALL 65", "country": "US",
                 "exchange": "CBOE", "id": "XLU.CBOE.21F2022.C65", "currency": "USD", "mpi": "0.01", "type": "OPTION",
@@ -193,7 +193,7 @@ class TestHTTPApi:
                                           extract_to_model(data, resolve_model(current_api, SymbolType))))
 
     @pytest.mark.parametrize("sym", (symbol,
-                                     resolve_model(current_api, SymbolType)({}, "", "", "", "", symbol, "",
+                                     resolve_model(current_api, SymbolType)("", "", "", "", symbol, "",
                                                                             "0.01", "STOCK", "")))
     @pytest.mark.parametrize("ordt", (None,
                                       {"market": ["day", "good_till_cancel"], "limit": ["day", "good_till_cancel"]}))
@@ -217,7 +217,7 @@ class TestHTTPApi:
             assert self.client.get_symbol_schedule(sym, True, current_api) == Schedule.from_json(data)
 
     @pytest.mark.parametrize("sym", (symbol,
-                                     resolve_model(current_api, SymbolType)({}, "", "", "", "", symbol, "",
+                                     resolve_model(current_api, SymbolType)("", "", "", "", symbol, "",
                                                                             "0.01", "STOCK", "")))
     def test_get_symbol_spec(self, sym):
         data = {
@@ -249,13 +249,13 @@ class TestHTTPApi:
     def test_get_symbols_by_type(self):
         data = [
             {
-                "optionData": None, "i18n": {}, "name": "NLMK",
+                "optionData": None, "name": "NLMK",
                 "description": "Futures on NLMK ordinary shares Jun 2021",
                 "country": "RU", "exchange": "FORTS", "id": "NLMK.FORTS.M2021", "currency": "RUB", "mpi": "1.0",
                 "type": "FUTURE", "ticker": "NLMK", "expiration": 1623944700000, "group": "NLMK.FORTS"
             },
             {
-                "optionData": None, "i18n": {}, "name": "NLMK",
+                "optionData": None, "name": "NLMK",
                 "description": "Futures on NLMK ordinary shares Mar 2021",
                 "country": "RU", "exchange": "FORTS", "id": "NLMK.FORTS.H2021", "currency": "RUB", "mpi": "1.0",
                 "type": "FUTURE", "ticker": "NLMK", "expiration": 1616082300000, "group": "NLMK.FORTS"
@@ -269,11 +269,11 @@ class TestHTTPApi:
     @pytest.mark.parametrize("sym",
                              (symbol,
                               [symbol, "SBRF.MICEX"],
-                              resolve_model(current_api, SymbolType)({}, "", "", "", "", symbol, "", "0.01",
+                              resolve_model(current_api, SymbolType)("", "", "", "", symbol, "", "0.01",
                                                                      "STOCK", ""),
-                              [resolve_model(current_api, SymbolType)({}, "", "", "", "", symbol, "", "0.01",
+                              [resolve_model(current_api, SymbolType)("", "", "", "", symbol, "", "0.01",
                                                                       "STOCK", ""),
-                               resolve_model(current_api, SymbolType)({}, "", "", "", "", "SBRF.MICEX", "", "0.01",
+                               resolve_model(current_api, SymbolType)("", "", "", "", "SBRF.MICEX", "", "0.01",
                                                                       "STOCK", "")]
                               ))
     @pytest.mark.parametrize("lvl", (FeedLevel.BEST_PRICE, FeedLevel.MARKET_DEPTH))
@@ -332,7 +332,7 @@ class TestHTTPApi:
                                           extract_to_model(data, resolve_model(current_api, QuoteType))))
 
     @pytest.mark.parametrize("sym", (symbol,
-                                     resolve_model(current_api, SymbolType)({}, "", "", "", "", symbol, "",
+                                     resolve_model(current_api, SymbolType)("", "", "", "", symbol, "",
                                                                             "0.01", "STOCK", "")))
     @pytest.mark.parametrize("dur", (300, CandleDurations.MIN5))
     def test_get_ohlc_quotes(self, sym, dur):
@@ -351,7 +351,7 @@ class TestHTTPApi:
         ))
 
     @pytest.mark.parametrize("sym", (symbol,
-                                     resolve_model(current_api, SymbolType)({}, "", "", "", "", symbol, "",
+                                     resolve_model(current_api, SymbolType)("", "", "", "", symbol, "",
                                                                             "0.01", "STOCK", "")))
     @pytest.mark.parametrize("dur", (300, CandleDurations.MIN5))
     def test_get_ohlc_trades(self, sym, dur):
@@ -374,7 +374,7 @@ class TestHTTPApi:
         ))
 
     @pytest.mark.parametrize("sym", (symbol,
-                                     resolve_model(current_api, SymbolType)({}, "", "", "", "", symbol, "",
+                                     resolve_model(current_api, SymbolType)("", "", "", "", symbol, "",
                                                                             "0.01", "STOCK", "")))
     def test_get_ticks_quotes(self, sym):
         data = [
@@ -410,7 +410,7 @@ class TestHTTPApi:
                                           extract_to_model(data, resolve_model(current_api, QuoteType))))
 
     @pytest.mark.parametrize("sym", (symbol,
-                                     resolve_model(current_api, SymbolType)({}, "", "", "", "", symbol, "",
+                                     resolve_model(current_api, SymbolType)("", "", "", "", symbol, "",
                                                                             "0.01", "STOCK", "")))
     def test_get_ticks_trades(self, sym):
         data = [
@@ -467,13 +467,13 @@ class TestHTTPApi:
     def test_get_transactions(self):
         data = [
             {"symbolId": None, "operationType": "INTEREST", "accountId": "DEW8032.001", "id": 3555890, "asset": "EUR",
-             "when": 1573718174726, "sum": "-4039708876.86"},
+             "when": 1573718174726, "sum": "-4039708876.86", "valueDate": "2020-04-29"},
             {"symbolId": "ASM.EURONEXT", "operationType": "COMMISSION", "accountId": "DEW8032.001", "id": 3571087,
-             "asset": "EUR", "when": 1573745310647, "sum": "-0.05"},
+             "asset": "EUR", "when": 1573745310647, "sum": "-0.05", "valueDate": "2020-04-29"},
             {"symbolId": "ASM.EURONEXT", "operationType": "TRADE", "accountId": "DEW8032.001", "id": 3571086,
-             "asset": "EUR", "when": 1573745310647, "sum": "-91.85"},
+             "asset": "EUR", "when": 1573745310647, "sum": "-91.85", "valueDate": "2020-04-29"},
             {"symbolId": "ASM.EURONEXT", "operationType": "TRADE", "accountId": "DEW8032.001", "id": 3571085,
-             "asset": "ASM.EURONEXT", "when": 1573745310647, "sum": "1"}
+             "asset": "ASM.EURONEXT", "when": 1573745310647, "sum": "1", "valueDate": "2020-04-29"}
         ]
         self.mock_adapter.register_uri("GET", api_md.format(current_api) +
                                        f"/transactions?limit={size}&order={Ordering.ASC.value}&accountId={account}",

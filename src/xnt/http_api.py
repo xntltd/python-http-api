@@ -230,7 +230,7 @@ class HTTPApi:
             logging.warning(f"Unable to parse JSON from {r.text}")
             return {}
 
-    def get_user_accounts(self, version: str = None) -> UserAccount:
+    def get_user_accounts(self, version: str = None) -> List[UserAccount]:
         """
         Return the list of user accounts and their statuses
         :param version: any version
