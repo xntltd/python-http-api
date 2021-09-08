@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.7
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, date
 from decimal import Decimal
 from enum import Enum
 from typing import Dict, Iterable, List, Optional, Union, TypeVar
@@ -376,7 +376,7 @@ class TransactionV1(Serializable):
     def __init__(self, operation_type: str, id_: str, asset: Optional[str], when: int, sum_: float,
                  symbol_id: Optional[str] = None, account_id: Optional[str] = None,
                  order_id: Optional[str] = None, order_pos: Optional[int] = None,
-                 uuid_: Optional[str] = None) -> None:
+                 uuid_: Optional[str] = None, value_date: Optional[str] = None) -> None:
         self.operation_type = operation_type
         self.id_ = id_
         self.asset = asset
@@ -387,6 +387,7 @@ class TransactionV1(Serializable):
         self.order_id = order_id
         self.order_pos = dc(order_pos)
         self.uuid = uuid_
+        self.value_date = date.fromisoformat(value_date)  # type: date
 
 
 class TransactionV2(TransactionV1):
@@ -397,7 +398,7 @@ class TransactionV3(Serializable):
     def __init__(self, operation_type: str, id_: str, asset: Optional[str], timestamp: int, sum_: float,
                  symbol_id: Optional[str] = None, account_id: Optional[str] = None,
                  order_id: Optional[str] = None, order_pos: Optional[int] = None,
-                 uuid_: Optional[str] = None) -> None:
+                 uuid_: Optional[str] = None, value_date: Optional[str] = None) -> None:
         self.operation_type = operation_type
         self.id_ = id_
         self.asset = asset
@@ -408,6 +409,7 @@ class TransactionV3(Serializable):
         self.order_id = order_id
         self.order_pos = dc(order_pos)
         self.uuid = uuid_
+        self.value_date = date.fromisoformat(value_date)  # type: date
 
 
 TransactionType = TypeVar('TransactionType', TransactionV1, TransactionV2, TransactionV3, covariant=True)
