@@ -421,6 +421,16 @@ class UserAccount(Serializable):
         self.account_id = account_id
 
 
+class Identifiers(Serializable):
+    def __init__(self, isin: Optional[str] = None, figi: Optional[str] = None, cusip: Optional[str] = None,
+                 ric: Optional[str] = None, sedol: Optional[str] = None) -> None:
+        self.isin = isin
+        self.figi = figi
+        self.cusip = cusip
+        self.ric = ric
+        self.sedol = sedol
+
+
 class SymbolV1(Serializable):
     class OptionData(Serializable):
         def __init__(self, option_group_id: str, right: str, strike_price: float) -> None:
@@ -455,7 +465,8 @@ class SymbolV2(Serializable):
 
     def __init__(self, name: str, description: str, country: str, exchange: str, id_: str,
                  currency: str, mpi: str, type_: str, ticker: str, group: Optional[str] = None,
-                 option_data: Optional[Dict[str, str]] = None, expiration: Optional[int] = None) -> None:
+                 option_data: Optional[Dict[str, str]] = None, expiration: Optional[int] = None,
+                 identifiers: Optional[Dict[str, str]] = None) -> None:
         self.option_data = extract_to_model(option_data, self.OptionData)
         self.i18n = {}
         self.name = name
@@ -469,6 +480,7 @@ class SymbolV2(Serializable):
         self.ticker = ticker
         self.expiration = timestamp_to_dt(expiration)
         self.group = group
+        self.identifiers = extract_to_model(identifiers, Identifiers)
 
 
 class SymbolV3(Serializable):
@@ -480,7 +492,8 @@ class SymbolV3(Serializable):
 
     def __init__(self, name: str, description: str, country: str, exchange: str, symbol_id: str, currency: str,
                  min_price_increment: str, symbol_type: str, ticker: str, group: str, expiration: Optional[int] = None,
-                 option_data: Optional[Dict[str, str]] = None, underlying_symbol_id: Optional[str] = None) -> None:
+                 option_data: Optional[Dict[str, str]] = None, underlying_symbol_id: Optional[str] = None,
+                 identifiers: Optional[Dict[str, str]] = None, icon: Optional[str] = None) -> None:
         self.option_data = extract_to_model(option_data, self.OptionData)
         self.name = name
         self.description = description
@@ -494,6 +507,8 @@ class SymbolV3(Serializable):
         self.expiration = timestamp_to_dt(expiration)
         self.group = group
         self.underlying_symbol_id = underlying_symbol_id
+        self.identifiers = extract_to_model(identifiers, Identifiers)
+        self.icon = icon
 
 
 SymbolType = TypeVar('SymbolType', SymbolV1, SymbolV2, SymbolV3, covariant=True)

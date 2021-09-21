@@ -178,7 +178,8 @@ class TestHTTPApi:
             {
                 "optionData": None, "name": "AAON", "description": "AAON, Inc. - Common Stock",
                 "country": "US", "exchange": "NASDAQ", "id": "AAON.NASDAQ", "currency": "USD", "mpi": "0.01",
-                "type": "STOCK", "ticker": "AAON", "expiration": None, "group": None
+                "type": "STOCK", "ticker": "AAON", "expiration": None, "group": None,
+                "identifiers": {"isin": "US0003602069", "figi": "BBG000C2LZP3", "ric": "AAON.OQ", "sedol": "2268130"}
             },
             {
                 "optionData": {"optionGroupId": "XLU.CBOE.21F2022.C*", "strikePrice": 65, "right": "CALL"},
