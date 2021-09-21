@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 # -*- coding: utf-8 -*-
-
+import warnings
 from decimal import Decimal
 from deepdiff import DeepDiff
 from datetime import datetime, timezone
@@ -27,14 +27,21 @@ def camel(s: str, uppercase_first_letter=False):
         return camelize(s, uppercase_first_letter)
 
 
-def extract_to_model(data: Any, obj: Any) -> Any:
+def extract_to_model(data: Any, obj: Any, eraise: bool = True) -> Any:
+    """
+    Serialize JSON-like data to Serializable object
+    :param data: incoming data, list or dicts
+    :param obj: child of Serializable class
+    :param eraise: raise RuntimeError if incorrect data supplied or model out-of-data
+    :return: Serializable class instance
+    """
     if isinstance(data, list):
         if hasattr(obj, '__model__'):
-            return [obj.from_json(item) for item in data]
+            return [obj.from_json(item, eraise) for item in data]
         else:
             return [obj(item) for item in data]
     elif isinstance(data, dict):
-        return obj.from_json(data)
+        return obj.from_json(data, eraise)
     elif isinstance(data, obj):
         return data
     else:
@@ -193,4 +200,5 @@ class Serializable(BaseSerializable):
             if eraise:
                 raise RuntimeError('could not get {} from {} as {}'.format(cls, type(obj), obj))
             else:
+                warnings.warn("'could not get {} from {} as {}".format(cls, type(obj), obj))
                 return None
