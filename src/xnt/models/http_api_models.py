@@ -51,9 +51,16 @@ class Side(Enum):
 
 
 class PermissionStatus(Enum):
+    blocked = "Blocked"
     full_access = 'Full'
     read_only = 'ReadOnly'
     close_only = 'CloseOnly'
+
+    def __eq__(self, other) -> bool:
+        return self.name == other.name
+
+    def __ne__(self, other) -> bool:
+        return self.name != other.name
 
 
 class OptionRight(Enum):
@@ -387,7 +394,7 @@ class TransactionV1(Serializable):
         self.order_id = order_id
         self.order_pos = dc(order_pos)
         self.uuid = uuid_
-        self.value_date = date.fromisoformat(value_date)  # type: date
+        self.value_date = date.fromisoformat(value_date) if value_date else None  # type: date
 
 
 class TransactionV2(TransactionV1):
@@ -395,9 +402,9 @@ class TransactionV2(TransactionV1):
 
 
 class TransactionV3(Serializable):
-    def __init__(self, operation_type: str, id_: str, asset: Optional[str], timestamp: int, sum_: float,
-                 symbol_id: Optional[str] = None, account_id: Optional[str] = None,
-                 order_id: Optional[str] = None, order_pos: Optional[int] = None,
+    def __init__(self, operation_type: Optional[str] = None, id_: Optional[str] = None, timestamp: Optional[int] = None,
+                 sum_: Optional[float] = None, asset: Optional[str] = None, symbol_id: Optional[str] = None,
+                 account_id: Optional[str] = None, order_id: Optional[str] = None, order_pos: Optional[int] = None,
                  uuid_: Optional[str] = None, value_date: Optional[str] = None) -> None:
         self.operation_type = operation_type
         self.id_ = id_
@@ -409,14 +416,14 @@ class TransactionV3(Serializable):
         self.order_id = order_id
         self.order_pos = dc(order_pos)
         self.uuid = uuid_
-        self.value_date = date.fromisoformat(value_date)  # type: date
+        self.value_date = date.fromisoformat(value_date) if value_date else None  # type: date
 
 
 TransactionType = TypeVar('TransactionType', TransactionV1, TransactionV2, TransactionV3, covariant=True)
 
 
 class UserAccount(Serializable):
-    def __init__(self, status: str, account_id: str) -> None:
+    def __init__(self, status: Union[str, PermissionStatus], account_id: str) -> None:
         self.status = Serializable.to_enum(status, PermissionStatus)
         self.account_id = account_id
 
@@ -552,11 +559,11 @@ class Schedule(Serializable):
             self.order_types = order_types
 
         @property
-        def start(self) -> Decimal:
+        def start(self) -> datetime:
             return self.period.start
 
         @property
-        def end(self) -> Decimal:
+        def end(self) -> datetime:
             return self.period.end
 
     def __init__(self, intervals: list) -> None:
@@ -991,7 +998,7 @@ OrderType = TypeVar('OrderType', OrderV1, OrderV2, OrderV3, covariant=True)
 
 
 class ExOrderV1(Serializable):
-    def __init__(self, quantity: str, order_id: str, event: str, price: str, position: str, time: str,):
+    def __init__(self, quantity: str, order_id: str, event: str, price: str, position: str, time: str,) -> None:
         self.quantity = dc(quantity)
         self.order_id = order_id
         self.event = event
@@ -1005,7 +1012,7 @@ class ExOrderV2(ExOrderV1):
 
 
 class ExOrderV3(Serializable):
-    def __init__(self, quantity: str, order_id: str, price: str, position: str, timestamp: str):
+    def __init__(self, quantity: str, order_id: str, price: str, position: str, timestamp: str) -> None:
         self.quantity = dc(quantity)
         self.order_id = order_id
         self.price = dc(price)
