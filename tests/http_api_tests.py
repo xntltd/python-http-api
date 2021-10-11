@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.7
 # -*- coding: utf-8 -*-
+import orjson as json
 import pytest
 import requests_mock
 import responses
@@ -15,15 +16,13 @@ from xnt.models.http_api_models import SymbolV2, SymbolV3, TradeType, TradeV2, T
 from xnt.models.http_api_models import resolve_model, resolve_symbol
 from xnt.models.http_jto import extract_to_model
 
-try:
-    import ujson as json
-except ImportError:
-    import json
-
 api_url = "http://api-test.exante.eu"
 api_md = "%s/md/{}" % api_url
 api_trade = "%s/trade/{}" % api_url
-account = "DEW8032.001"
+api_co = "%s/co/{}" % api_url
+user = "test@exante.eu"
+client = "DEW8032"
+account = f"{client}.001"
 symbol = "ASM.EURONEXT"
 size = 4
 
@@ -426,8 +425,8 @@ class TestHTTPApi:
         assert all(a == b for a, b in zip(self.client.get_ticks(sym, DataType.TRADES, limit=size, version=current_api),
                                           extract_to_model(data, resolve_model(current_api, TradeType))))
 
-    @pytest.mark.parametrize("date", (None, "2020-08-27"))
-    def test_get_account_summary(self, date):
+    @pytest.mark.parametrize("date_v", (None, "2020-08-27"))
+    def test_get_account_summary(self, date_v):
         cur = "EUR"
         data = {
             "currencies": [
@@ -457,12 +456,12 @@ class TestHTTPApi:
             "currency": "EUR",
             "account": "DEW8032.001"
         }
-        if date:
-            self.mock_adapter.register_uri("GET", api_md.format(current_api) + f"/summary/{account}/{date}/{cur}",
+        if date_v:
+            self.mock_adapter.register_uri("GET", api_md.format(current_api) + f"/summary/{account}/{date_v}/{cur}",
                                            json=data)
         else:
             self.mock_adapter.register_uri("GET", api_md.format(current_api) + f"/summary/{account}/{cur}", json=data)
-        assert self.client.get_account_summary(account, cur, date, current_api) == \
+        assert self.client.get_account_summary(account, cur, date_v, current_api) == \
                resolve_model(current_api, SummaryType).from_json(data)
 
     def test_get_transactions(self):
@@ -820,7 +819,7 @@ class TestHTTPApi:
     @responses.activate
     def test_quote_stream(self):
         def formatter():
-            return '\n'.join(json.dumps(item) for item in data).encode('ascii')
+            return '\n'.join(json.dumps(item).decode("utf-8") for item in data).encode('ascii')
 
         data = [
             {
@@ -856,7 +855,7 @@ class TestHTTPApi:
     @responses.activate
     def test_trade_stream(self):
         def formatter():
-            return '\n'.join(json.dumps(item) for item in data).encode('ascii')
+            return '\n'.join(json.dumps(item).decode("utf-8") for item in data).encode('ascii')
 
         data = [
             {
@@ -892,7 +891,7 @@ class TestHTTPApi:
     @responses.activate
     def test_orders_stream(self):
         def formatter():
-            return '\n'.join(json.dumps(item) for item in data).encode('ascii')
+            return '\n'.join(json.dumps(item).decode("utf-8") for item in data).encode('ascii')
 
         data = [
             {
@@ -992,7 +991,7 @@ class TestHTTPApi:
     @responses.activate
     def test_exec_orders_stream(self):
         def formatter():
-            return '\n'.join(json.dumps(item) for item in data).encode('ascii')
+            return '\n'.join(json.dumps(item).decode("utf-8") for item in data).encode('ascii')
 
         data = [
             {"event": "heartbeat"},

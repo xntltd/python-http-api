@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.7
 # -*- coding: utf-8 -*-
+import orjson as json
 import warnings
 from decimal import Decimal
 from deepdiff import DeepDiff
@@ -7,12 +8,7 @@ from datetime import datetime, timezone
 from enum import Enum, EnumMeta
 from inflection import camelize, underscore
 from inspect import signature
-from typing import Any, Callable, Dict, Optional, Union, Type, TypeVar
-
-try:
-    import ujson as json
-except ImportError:
-    import json
+from typing import Any, Callable, Dict, List, Optional, Union, Type, Set, TypeVar
 
 reserved = ('type', 'id', 'list', 'except', 'from', 'to', 'open', 'sum', 'uuid')
 SerializableType = TypeVar('SerializableType', bound='Serializable')
@@ -27,21 +23,40 @@ def camel(s: str, uppercase_first_letter=False):
         return camelize(s, uppercase_first_letter)
 
 
-def extract_to_model(data: Any, obj: Any, eraise: bool = True) -> Any:
+def extract_to_model(data: Any, obj: Type[SerializableType], eraise: bool = False,
+                     backup_obj: Optional[Type[SerializableType]] = None) \
+        -> Union[None, SerializableType, List[SerializableType]]:
     """
-    Serialize JSON-like data to Serializable object
+    Serialize JSON-like data to Serializable object, tries backup_obj if supplied
     :param data: incoming data, list or dicts
     :param obj: child of Serializable class
     :param eraise: raise RuntimeError if incorrect data supplied or model out-of-data
-    :return: Serializable class instance
+    :param backup_obj: trying to serialize data into backup_obj if not successfull on obj
+    :return: Serializable class instance if possible
     """
-    if isinstance(data, list):
-        if hasattr(obj, '__model__'):
-            return [obj.from_json(item, eraise) for item in data]
+    if isinstance(data, Dict):
+        if hasattr(obj, "__model__"):
+            r = obj.from_json(data)
+        elif callable(obj):
+            r = obj(data)
         else:
-            return [obj(item) for item in data]
-    elif isinstance(data, dict):
-        return obj.from_json(data, eraise)
+            # this should never happens
+            raise ValueError(f"Object {obj} has undeterminable type {type(obj)}")
+        if isinstance(r, RuntimeError) and backup_obj is not None:
+            return extract_to_model(data, backup_obj, True)
+        elif isinstance(r, RuntimeError) and not backup_obj:
+            if eraise:
+                raise r
+            else:
+                warnings.warn("Unable to wrap data '%s', skipping" % data)
+                return None
+        elif not isinstance(r, Exception):
+            return r
+        else:
+            # this should never happens, added for lintering
+            raise r
+    elif isinstance(data, (List, Set)):
+        return [extract_to_model(x, obj, eraise, backup_obj) for x in data]
     elif isinstance(data, obj):
         return data
     else:
@@ -102,11 +117,20 @@ def opt_int(i: Optional[Numeric]) -> Optional[int]:
         return int(dc(i))
 
 
+def attr_or(obj: Any, attribute: str) -> Optional[Any]:
+    if obj is None:
+        return None
+    if not hasattr(obj, attribute):
+        return obj
+    else:
+        return getattr(obj, attribute, None)
+
+
 class BaseSerializable:
     __model__ = True
 
     def __dict(self, obj: Any, dt_parser: Callable, keep_null: bool) -> Any:
-        if isinstance(obj, dict):
+        if isinstance(obj, Dict):
             return {
                 self.__dict(key, dt_parser, keep_null): self.__dict(value, dt_parser, keep_null)
                 for key, value in obj.items()
@@ -132,9 +156,11 @@ class BaseSerializable:
             return obj
 
     @staticmethod
-    def to_enum(source: Union[int, str, Enum, None], obj: EnumMeta) -> Optional[Enum]:
+    def to_enum(source: Union[int, str, Enum, None], obj: EnumMeta, debug: bool = False) -> Optional[Enum]:
         if source is None:
             return None
+        elif isinstance(source, Enum):
+            return source
         else:
             try:
                 return obj(source)
@@ -142,7 +168,10 @@ class BaseSerializable:
                 try:
                     return obj[source]
                 except KeyError:
-                    raise ValueError(f"Unable to extract Enum from {obj}")
+                    if debug:
+                        return source
+                    else:
+                        raise ValueError(f"Unable to extract Enum from {obj}")
 
     def to_json(self, keep_null: bool = False, dt_parser: Callable = to_string) -> Dict[str, Union[str, int, float]]:
         """
@@ -154,7 +183,7 @@ class BaseSerializable:
         return self.__dict(self, dt_parser, keep_null)
 
     def __repr__(self) -> str:
-        return json.dumps(self.to_json(False))
+        return json.dumps(self.to_json(False)).decode()
 
     def __eq__(self, other) -> bool:
         if hasattr(other, '__model__'):
@@ -175,19 +204,20 @@ class Serializable(BaseSerializable):
         }
 
     @classmethod
-    def from_json(cls: Type[SerializableType], obj: Union[Dict, SerializableType, None],
-                  eraise: bool = True) -> Optional[SerializableType]:
+    def from_json(cls: Type[SerializableType],
+                  obj: Union[Dict, SerializableType, None]) -> Union[SerializableType, Exception]:
         def make_key(key: str) -> str:
             key = underscore(key)
             if key in reserved:
                 return '%s_' % key
             else:
                 return key
+
         try:
             if obj in (None, [], {}, [{}]):
                 return cls(**cls._empty_init())  # type: ignore
             elif isinstance(obj, dict):
-                data = dict()  # type: Dict[str, Any]
+                data = {}  # type: Dict[str, Any]
                 for k, v in obj.items():
                     if isinstance(v, (int, float, Decimal)) and not isinstance(v, bool):
                         data[make_key(k)] = dc(v)
@@ -197,8 +227,4 @@ class Serializable(BaseSerializable):
             elif isinstance(obj, cls):
                 return obj
         except TypeError:
-            if eraise:
-                raise RuntimeError('could not get {} from {} as {}'.format(cls, type(obj), obj))
-            else:
-                warnings.warn("'could not get {} from {} as {}".format(cls, type(obj), obj))
-                return None
+            return RuntimeError("could not get {} from {} as {}".format(cls, type(obj), obj))

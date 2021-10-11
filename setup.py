@@ -24,7 +24,7 @@ setup(
     package_dir={'': 'src'},
 
     install_requires=[
-        'ujson==1.35',
+        'orjson>=3.0.0',
         'deepdiff>=4.0.5',
         'inflection==0.3.1',
         'requests>=2.22.0',
